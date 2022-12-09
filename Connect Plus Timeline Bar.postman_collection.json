@@ -75,6 +75,10 @@
 									"\r",
 									"pm.test(\"Status code is 200\", function () {\r",
 									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Response Must have same Relocation ID --> \" + relocationId , function () {\r",
+									"     pm.expect(pm.response.text()).to.include(relocationId);\r",
 									"});"
 								],
 								"type": "text/javascript"
