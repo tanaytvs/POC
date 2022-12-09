@@ -1,0 +1,747 @@
+{
+	"info": {
+		"_postman_id": "fdfced17-eaa2-461e-a622-2e29bab9d68d",
+		"name": "Connect Plus Standard",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "TL Service",
+			"item": [
+				{
+					"name": "Get Token",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"let jsonData = JSON.parse(responseBody);\r",
+									"var accessToken = jsonData.access_token;\r",
+									"pm.environment.set(\"Token\", accessToken);"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"grant_type\": \"password\",\n    \"username\": \"123whit.albohm@hotmail.com\",\n    \"password\": \"Sirva12345!\",\n    \"client_id\": \"3vRB3Q57ekXXHcJJtJf8mCxjCiwnZ6Vx\",\n    \"client_secret\": \"H5zSQlktY2-ZN1winqdjlzDkiF1owLxBi-Q06p82HzM9o1dk00QfFZDkQmXLvGQg\",\n    \"redirect_uri\": \"https://connectplus-test.sirva-relo-prd-web.p.azurewebsites.net/callback\",\n    \"audience\": \"https://imove.sirva.com\",\n    \"connection\": \"iMoveNext\",\n    \"scope\": \"openid profile email offline_access\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "https://sirva-test.auth0.com/oauth/token",
+							"protocol": "https",
+							"host": [
+								"sirva-test",
+								"auth0",
+								"com"
+							],
+							"path": [
+								"oauth",
+								"token"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Relocation ",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"let jsonData = JSON.parse(responseBody);\r",
+									"var relocationId = jsonData.relocations[0].relocationId;\r",
+									"console.log(relocationId);\r",
+									"pm.environment.set(\"relocationId\", relocationId);"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{Token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{host}}/relocation",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"relocation"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Service Details ",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"    ",
+									"pm.test(\"Validate that response must have serviceDetailsContract \", function () {",
+									"    pm.expect(pm.response.text()).to.include(\"temporaryLivingServiceDetailsContract\");",
+									"});",
+									"",
+									"let jsonData = JSON.parse(responseBody);",
+									"",
+									"pm.test('TL Contract should not have null value', function() {",
+									"    jsonData.temporaryLivingServiceDetailsContract.services[0].id !== null",
+									"});",
+									"",
+									"pm.test('Temporory service Details must have Tags needed to be displayed on the Connect Plus Portal', function() {",
+									"    var id =  jsonData.temporaryLivingServiceDetailsContract.services[0].programId",
+									"    var serviceStatus = jsonData.temporaryLivingServiceDetailsContract.services[0].serviceStatus",
+									"    var serviceInitiationDate = jsonData.temporaryLivingServiceDetailsContract.services[0].serviceInitiationDate",
+									"    var addressID = jsonData.temporaryLivingServiceDetailsContract.services[0].unitAddress.addressID",
+									"   ",
+									"    id !== null",
+									"    serviceInitiationDate !== null",
+									"    addressID !== null",
+									"",
+									"    pm.expect(id).to.deep.equal(\"TL\")",
+									"    pm.expect(serviceStatus).to.deep.equal(\"CANCEL\")",
+									"});",
+									" ",
+									"",
+									"",
+									"",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"type": "text",
+								"value": "Bearer {{Token}}"
+							},
+							{
+								"key": "Accept",
+								"type": "text",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"RelocationId\": \"{{relocationId}}\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{host}}/tlservicedetails",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"tlservicedetails"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "HR Service Details",
+			"item": [
+				{
+					"name": "Get Token",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"let jsonData = JSON.parse(responseBody);\r",
+									"var accessToken = jsonData.access_token;\r",
+									"pm.environment.set(\"Token\", accessToken);"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"grant_type\": \"password\",\n    \"username\": \"123whit.albohm@hotmail.com\",\n    \"password\": \"Sirva12345!\",\n    \"client_id\": \"3vRB3Q57ekXXHcJJtJf8mCxjCiwnZ6Vx\",\n    \"client_secret\": \"H5zSQlktY2-ZN1winqdjlzDkiF1owLxBi-Q06p82HzM9o1dk00QfFZDkQmXLvGQg\",\n    \"redirect_uri\": \"https://connectplus-test.sirva-relo-prd-web.p.azurewebsites.net/callback\",\n    \"audience\": \"https://imove.sirva.com\",\n    \"connection\": \"iMoveNext\",\n    \"scope\": \"openid profile email offline_access\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "https://sirva-test.auth0.com/oauth/token",
+							"protocol": "https",
+							"host": [
+								"sirva-test",
+								"auth0",
+								"com"
+							],
+							"path": [
+								"oauth",
+								"token"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Relocation ",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"let jsonData = JSON.parse(responseBody);\r",
+									"var relocationId = jsonData.relocations[0].relocationId;\r",
+									"console.log(relocationId);\r",
+									"pm.environment.set(\"relocationId\", relocationId);"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{Token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{host}}/relocation",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"relocation"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Service Details ",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"    ",
+									"pm.test(\"Validate that response must have serviceDetailsContract \", function () {",
+									"    pm.expect(pm.response.text()).to.include(\"homeRentalServiceDetailsContract\");",
+									"});",
+									"",
+									"let jsonData = JSON.parse(responseBody);",
+									"",
+									"pm.test('HR Contract should not have null value', function() {",
+									"    jsonData.homeRentalServiceDetailsContract.services[0].id !== null",
+									"});",
+									"",
+									"pm.test('HR service Details must have Tags needed to be displayed on the Connect Plus Portal', function() {",
+									"    var id =  jsonData.homeRentalServiceDetailsContract.services[0].programId",
+									"    var serviceStatus = jsonData.homeRentalServiceDetailsContract.services[0].cc_status",
+									"    var LeaseStartDate = jsonData.homeRentalServiceDetailsContract.services[0].dateRented",
+									"",
+									"",
+									"    id !== null",
+									"    serviceStatus !== null",
+									"    LeaseStartDate !== null",
+									"",
+									"    pm.expect(id).to.deep.equal(\"HR\")",
+									"    ",
+									"});",
+									" ",
+									"",
+									"",
+									"",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"type": "text",
+								"value": "Bearer {{Token}}"
+							},
+							{
+								"key": "Accept",
+								"type": "text",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"RelocationId\": \"{{relocationId}}\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{host}}/hrservicedetails",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"hrservicedetails"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "HHG Service Details",
+			"item": [
+				{
+					"name": "Get Token",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"let jsonData = JSON.parse(responseBody);\r",
+									"var accessToken = jsonData.access_token;\r",
+									"pm.environment.set(\"Token\", accessToken);"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"grant_type\": \"password\",\n    \"username\": \"123whit.albohm@hotmail.com\",\n    \"password\": \"Sirva12345!\",\n    \"client_id\": \"3vRB3Q57ekXXHcJJtJf8mCxjCiwnZ6Vx\",\n    \"client_secret\": \"H5zSQlktY2-ZN1winqdjlzDkiF1owLxBi-Q06p82HzM9o1dk00QfFZDkQmXLvGQg\",\n    \"redirect_uri\": \"https://connectplus-test.sirva-relo-prd-web.p.azurewebsites.net/callback\",\n    \"audience\": \"https://imove.sirva.com\",\n    \"connection\": \"iMoveNext\",\n    \"scope\": \"openid profile email offline_access\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "https://sirva-test.auth0.com/oauth/token",
+							"protocol": "https",
+							"host": [
+								"sirva-test",
+								"auth0",
+								"com"
+							],
+							"path": [
+								"oauth",
+								"token"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Relocation ",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"let jsonData = JSON.parse(responseBody);\r",
+									"var relocationId = jsonData.relocations[0].relocationId;\r",
+									"console.log(relocationId);\r",
+									"pm.environment.set(\"relocationId\", relocationId);"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{Token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{host}}/relocation",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"relocation"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Service Details ",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"    ",
+									"pm.test(\"Validate that response must have serviceDetailsContract \", function () {",
+									"    pm.expect(pm.response.text()).to.include(\"hhgServiceDetailsContract\");",
+									"});",
+									"",
+									"",
+									"let jsonData = JSON.parse(responseBody);",
+									"",
+									"pm.test('HHG Contract should not have null value', function() {",
+									"    jsonData.hhgServiceDetailsContract.services[0].id !== null",
+									"});",
+									"",
+									"pm.test('HR service Details must have Tags needed to be displayed on the Connect Plus Portal', function() {",
+									"    var id =  jsonData.hhgServiceDetailsContract.services[0].programId",
+									"    var serviceStatus = jsonData.hhgServiceDetailsContract.services[0].cc_status",
+									"   // var LeaseStartDate = jsonData.hhgServiceDetailsContract.services[0].dateRented",
+									"",
+									"",
+									"    id !== null",
+									"    serviceStatus !== null",
+									"    //LeaseStartDate !== null",
+									"",
+									"    pm.expect(id).to.deep.equal(\"HHG\")",
+									"    ",
+									"});",
+									" ",
+									"",
+									"",
+									"",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"type": "text",
+								"value": "Bearer {{Token}}"
+							},
+							{
+								"key": "Accept",
+								"type": "text",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"RelocationId\": \"{{relocationId}}\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{host}}/hhgservicedetails",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"hhgservicedetails"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Home Sale Service Details",
+			"item": [
+				{
+					"name": "Get Token",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"let jsonData = JSON.parse(responseBody);\r",
+									"var accessToken = jsonData.access_token;\r",
+									"pm.environment.set(\"Token\", accessToken);"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"grant_type\": \"password\",\n    \"username\": \"123whit.albohm@hotmail.com\",\n    \"password\": \"Sirva12345!\",\n    \"client_id\": \"3vRB3Q57ekXXHcJJtJf8mCxjCiwnZ6Vx\",\n    \"client_secret\": \"H5zSQlktY2-ZN1winqdjlzDkiF1owLxBi-Q06p82HzM9o1dk00QfFZDkQmXLvGQg\",\n    \"redirect_uri\": \"https://connectplus-test.sirva-relo-prd-web.p.azurewebsites.net/callback\",\n    \"audience\": \"https://imove.sirva.com\",\n    \"connection\": \"iMoveNext\",\n    \"scope\": \"openid profile email offline_access\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "https://sirva-test.auth0.com/oauth/token",
+							"protocol": "https",
+							"host": [
+								"sirva-test",
+								"auth0",
+								"com"
+							],
+							"path": [
+								"oauth",
+								"token"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Relocation ",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"let jsonData = JSON.parse(responseBody);\r",
+									"var relocationId = jsonData.relocations[0].relocationId;\r",
+									"console.log(relocationId);\r",
+									"pm.environment.set(\"relocationId\", relocationId);"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{Token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{host}}/relocation",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"relocation"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Service Details ",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"    ",
+									"pm.test(\"Validate that response must have serviceDetailsContract \", function () {",
+									"    pm.expect(pm.response.text()).to.include(\"hhgServiceDetailsContract\");",
+									"});",
+									"",
+									"",
+									"let jsonData = JSON.parse(responseBody);",
+									"",
+									"pm.test('HHG Contract should not have null value', function() {",
+									"    jsonData.hhgServiceDetailsContract.services[0].id !== null",
+									"});",
+									"",
+									"pm.test('HR service Details must have Tags needed to be displayed on the Connect Plus Portal', function() {",
+									"    var id =  jsonData.hhgServiceDetailsContract.services[0].programId",
+									"    var serviceStatus = jsonData.hhgServiceDetailsContract.services[0].cc_status",
+									"   // var LeaseStartDate = jsonData.hhgServiceDetailsContract.services[0].dateRented",
+									"",
+									"",
+									"    id !== null",
+									"    serviceStatus !== null",
+									"    //LeaseStartDate !== null",
+									"",
+									"    pm.expect(id).to.deep.equal(\"HHG\")",
+									"    ",
+									"});",
+									" ",
+									"",
+									"",
+									"",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"type": "text",
+								"value": "Bearer {{Token}}"
+							},
+							{
+								"key": "Accept",
+								"type": "text",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"RelocationId\": \"{{relocationId}}\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{host}}/homesaleservicedetails",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"homesaleservicedetails"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		}
+	]
+}
