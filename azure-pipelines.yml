@@ -23,3 +23,10 @@ steps:
   inputs:
     command: 'install'
     workingDir: 'npm install -g newman'
+- task: Npm@1
+  inputs:
+    command: 'install'
+    workingDir: 'npm install -g newman newman-reporter-htmlextra'
+- task: CmdLine@2
+  inputs:
+    script: 'newman run ''.\Connect Plus Timeline Bar.postman_collection.json'' -e .\QA.postman_environment.json'
